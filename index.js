@@ -11,7 +11,8 @@ const allowedOrigins = [
   "https://www.esfahancenter.com",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
-  "https://esfahancenter-2.onrender.com"  // دامنه جدید اضافه شده
+  "https://esfahancenter-2.onrender.com" 
+  "https://esfahancenter.onrender.com"// دامنه جدید اضافه شده
 ];
 
 // تنظیمات CORS
