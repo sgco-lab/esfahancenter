@@ -4,7 +4,12 @@ const fetch = require("node-fetch");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// فقط اجازه دسترسی از دامنه سایتت
+app.use(cors({
+  origin: "https://esfahancenter.com"
+}));
+
 app.use(express.json());
 
 app.post("/chat", async (req, res) => {
@@ -15,28 +20,27 @@ app.post("/chat", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://esfahancenter.com",
-        "X-Title": "esfahancenter-chat"
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
+        model: "mistralai/mistral-7b-instruct:free",
         messages: [
           {
             role: "system",
-            content:
-              "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید. اگر سوال نامربوط بود، بگویید: 'متأسفم من فقط در مورد اصفهان کمک می‌کنم.'"
+            content: "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید. اگر سوال نامربوط بود، بگویید: 'متأسفم من فقط در مورد اصفهان کمک می‌کنم.'"
           },
-          { role: "user", content: userMessage }
+          {
+            role: "user",
+            content: userMessage
+          }
         ]
       })
     });
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
 
-    if (reply) {
-      res.json({ reply });
+    if (data.choices?.[0]?.message?.content) {
+      res.json({ reply: data.choices[0].message.content });
     } else {
       res.status(500).json({ reply: "پاسخی دریافت نشد." });
     }
