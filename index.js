@@ -5,13 +5,28 @@ const cors = require("cors");
 
 const app = express();
 
-// فقط اجازه دسترسی از دامنه سایتت
+// لیست دامنه‌های مجاز برای CORS
+const allowedOrigins = [
+  "https://esfahancenter.com",
+  "https://www.esfahancenter.com",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
+];
+
+// فعال‌سازی CORS فقط برای دامنه‌های مجاز
 app.use(cors({
-  origin: "https://esfahancenter.com"
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("❌ دسترسی از این دامنه مجاز نیست."));
+    }
+  }
 }));
 
 app.use(express.json());
 
+// مسیر چت‌بات
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
 
@@ -42,13 +57,14 @@ app.post("/chat", async (req, res) => {
     if (data.choices?.[0]?.message?.content) {
       res.json({ reply: data.choices[0].message.content });
     } else {
-      res.status(500).json({ reply: "پاسخی دریافت نشد." });
+      res.status(500).json({ reply: "❌ پاسخی دریافت نشد. لطفاً دوباره تلاش کنید." });
     }
   } catch (error) {
-    console.error("خطا:", error);
-    res.status(500).json({ reply: "خطا در ارتباط با سرور." });
+    console.error("❌ خطا در سرور:", error);
+    res.status(500).json({ reply: "❌ خطا در ارتباط با سرور. لطفاً بعداً تلاش کنید." });
   }
 });
 
+// اجرای سرور
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
