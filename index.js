@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const fetch = require("node-fetch");
-const app = express();
 const cors = require("cors");
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
@@ -11,19 +11,21 @@ app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
 
   try {
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://esfahancenter.onrender.com",  // آدرس دامنه یا پروژه‌ات
+        "X-Title": "Esfahan Center Chatbot"
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek-chat",  // می‌تونی مدل‌های دیگه هم بذاری مثلاً mistral, llama3, ...
         messages: [
           {
             role: "system",
             content:
-              "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید.",
+              "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید. اگر سوال نامربوط بود، بگویید: 'متأسفم من فقط در مورد اصفهان کمک می‌کنم.'",
           },
           { role: "user", content: userMessage },
         ],
@@ -32,15 +34,13 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
 
-    console.log("🔵 پاسخ DeepSeek:", JSON.stringify(data, null, 2));
-
     if (data.choices?.[0]?.message?.content) {
       res.json({ reply: data.choices[0].message.content });
     } else {
-      res.status(500).json({ reply: "پاسخی دریافت نشد (از API)." });
+      res.status(500).json({ reply: "پاسخی دریافت نشد." });
     }
   } catch (error) {
-    console.error("❌ خطای ارتباط با DeepSeek:", error);
+    console.error("خطا:", error);
     res.status(500).json({ reply: "خطا در ارتباط با سرور." });
   }
 });
