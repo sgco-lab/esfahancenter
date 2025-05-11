@@ -1,3 +1,12 @@
+require("dotenv").config();
+const express = require("express");
+const fetch = require("node-fetch");
+const app = express();
+const cors = require("cors");
+
+app.use(cors());
+app.use(express.json());
+
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
 
@@ -23,7 +32,6 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
 
-    // لاگ دقیق برای بررسی
     console.log("🔵 پاسخ DeepSeek:", JSON.stringify(data, null, 2));
 
     if (data.choices?.[0]?.message?.content) {
@@ -36,3 +44,6 @@ app.post("/chat", async (req, res) => {
     res.status(500).json({ reply: "خطا در ارتباط با سرور." });
   }
 });
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
