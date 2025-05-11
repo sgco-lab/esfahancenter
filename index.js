@@ -16,26 +16,27 @@ app.post("/chat", async (req, res) => {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://esfahancenter.onrender.com",  // آدرس دامنه یا پروژه‌ات
-        "X-Title": "Esfahan Center Chatbot"
+        "HTTP-Referer": "https://esfahancenter.com",
+        "X-Title": "esfahancenter-chat"
       },
       body: JSON.stringify({
-        model: "deepseek-chat",  // می‌تونی مدل‌های دیگه هم بذاری مثلاً mistral, llama3, ...
+        model: "openai/gpt-3.5-turbo",
         messages: [
           {
             role: "system",
             content:
-              "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید. اگر سوال نامربوط بود، بگویید: 'متأسفم من فقط در مورد اصفهان کمک می‌کنم.'",
+              "شما یک راهنمای تخصصی گردشگری اصفهان هستید. فقط درباره جاذبه‌ها، هتل‌ها، رستوران‌ها و تورهای esfahancenter.com پاسخ دهید. اگر سوال نامربوط بود، بگویید: 'متأسفم من فقط در مورد اصفهان کمک می‌کنم.'"
           },
-          { role: "user", content: userMessage },
-        ],
-      }),
+          { role: "user", content: userMessage }
+        ]
+      })
     });
 
     const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content;
 
-    if (data.choices?.[0]?.message?.content) {
-      res.json({ reply: data.choices[0].message.content });
+    if (reply) {
+      res.json({ reply });
     } else {
       res.status(500).json({ reply: "پاسخی دریافت نشد." });
     }
